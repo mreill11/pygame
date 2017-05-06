@@ -90,7 +90,7 @@ def ball_init(right):
     
     if right == False:
         horz = - horz
-        
+
     velocityBall = [horz, -vert]
 
 # # define event handlers
@@ -109,7 +109,6 @@ def ball_init(right):
 
 #     # self.field = self.Gameboard(self)
 #     # self.gameboard = pygame.sprite.RenderPlain(self.field)
-
 
 
 #draw function of canvas
