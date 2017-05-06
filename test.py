@@ -21,6 +21,7 @@ velocityBall = [0, 0]
 scorePlayer1 = 0
 scorePlayer2 = 0
 borderThickness = 4
+play = False
 
 #colors
 whiteColor = (255, 255, 255)
@@ -52,11 +53,24 @@ class GameSpace:
         positionPlayer1 = [(paddleWidth / 2) - 1, screenHeight / 2]
         positionPlayer2 = [screenWidth + 1 - (paddleWidth / 2), screenHeight / 2]
         scorePlayer1 = 0
-        scorePlayer2 = -1
+        scorePlayer2 = 0
+        ball_init(True)
 
         window.blit(self.background, (0,0))
         pygame.display.flip()
 
+        fps.tick(60)
+        window.fill(blackColor)
+        self.sprites.update()
+        self.sprites.draw(window)
+        draw(window)
+        pygame.display.flip()
+
+        # window.fill(blackColor)
+        # self.sprites.update()
+        # self.sprites.draw(window)
+        # draw(window)
+        # pygame.display.flip()
 
         #game loop
         while True:
@@ -70,15 +84,16 @@ class GameSpace:
                 elif event.type == QUIT:
                     pygame.quit()
                     sys.exit()
-                    
-            # pygame.display.update()
-            fps.tick(60)
 
-            window.fill(blackColor)
-            self.sprites.update()
-            self.sprites.draw(window)
-            draw(window)
-            pygame.display.flip()
+            if play:
+                # pygame.display.update()
+                fps.tick(60)
+
+                window.fill(blackColor)
+                self.sprites.update()
+                self.sprites.draw(window)
+                draw(window)
+                pygame.display.flip()
 
 # helper function that spawns a ball, returns a position vector and a velocity vector
 # if right is True, spawn to the right, else spawn to the left
@@ -143,18 +158,18 @@ def draw(canvas):
     #     8)
 
     # update paddle's vertical position, keep paddle on the screen
-    if positionPlayer1[1] > (paddleHeight / 2) and positionPlayer1[1] < screenHeight - (paddleHeight / 2):  # paddle is between top and bottom
+    if positionPlayer1[1] > (paddleHeight / 2) + borderThickness and positionPlayer1[1] < screenHeight - (paddleHeight / 2) - borderThickness:      # paddle is between top and bottom
         positionPlayer1[1] += velocityPlayer1
-    elif positionPlayer1[1] <= (paddleHeight / 2) and velocityPlayer1 > 0:      # paddle is at top & moving down
+    elif positionPlayer1[1] <= (paddleHeight / 2) + borderThickness and velocityPlayer1 > 0:      # paddle is at top & moving down
         positionPlayer1[1] += velocityPlayer1
-    elif positionPlayer1[1] >= screenHeight - (paddleHeight / 2) and velocityPlayer1 < 0:       # pddle at bottom & moving up
+    elif positionPlayer1[1] >= screenHeight - (paddleHeight / 2) - borderThickness and velocityPlayer1 < 0:       # paddle is at bottom & moving up
         positionPlayer1[1] += velocityPlayer1
     
-    if positionPlayer2[1] > (paddleHeight / 2) and positionPlayer2[1] < screenHeight - (paddleHeight / 2):
+    if positionPlayer2[1] > (paddleHeight / 2) + borderThickness and positionPlayer2[1] < screenHeight - (paddleHeight / 2) - borderThickness:      # paddle is between top and bottom
         positionPlayer2[1] += velocityPlayer2
-    elif positionPlayer2[1] <= (paddleHeight / 2) and velocityPlayer2 > 0:
+    elif positionPlayer2[1] <= (paddleHeight / 2) + borderThickness and velocityPlayer2 > 0:      # paddle is at top & moving down
         positionPlayer2[1] += velocityPlayer2
-    elif positionPlayer2[1] >= screenHeight - (paddleHeight / 2) and velocityPlayer2 < 0:
+    elif positionPlayer2[1] >= screenHeight - (paddleHeight / 2) - borderThickness and velocityPlayer2 < 0:       # paddle is at bottom & moving up
         positionPlayer2[1] += velocityPlayer2
 
     #update ball
@@ -213,7 +228,7 @@ def draw(canvas):
         velocityBall[1] = -velocityBall[1]
     
     #ball collison check on gutters or paddles
-    if int(positionBall[0]) <= ballRadius + paddleWidth and int(positionBall[1]) in range(positionPlayer1[1] - (paddleHeight / 2),positionPlayer1[1] + (paddleHeight / 2), 1):
+    if int(positionBall[0]) <= ballRadius + paddleWidth and int(positionBall[1]) in range(positionPlayer1[1] - (paddleHeight / 2) - (borderThickness * 4), positionPlayer1[1] + (paddleHeight / 2) + (borderThickness * 4), 1):
         velocityBall[0] = -velocityBall[0]
         velocityBall[0] *= 1.1
         velocityBall[1] *= 1.1
@@ -221,7 +236,7 @@ def draw(canvas):
         scorePlayer2 += 1
         ball_init(True)
         
-    if int(positionBall[0]) >= screenWidth + 1 - ballRadius - paddleWidth and int(positionBall[1]) in range(positionPlayer2[1] - (paddleHeight / 2),positionPlayer2[1] + (paddleHeight / 2),1):
+    if int(positionBall[0]) >= screenWidth + 1 - ballRadius - paddleWidth and int(positionBall[1]) in range(positionPlayer2[1] - (paddleHeight / 2) - (borderThickness * 4), positionPlayer2[1] + (paddleHeight / 2) + (borderThickness * 4), 1):
         velocityBall[0] = -velocityBall[0]
         velocityBall[0] *= 1.1
         velocityBall[1] *= 1.1
@@ -240,9 +255,14 @@ def draw(canvas):
     
 #keydown handler
 def keydown(event):
-    global velocityPlayer1, velocityPlayer2
+    global velocityPlayer1, velocityPlayer2, play
     
-    if event.key == K_UP:
+    if event.key == K_SPACE:
+        if play:
+            play = False
+        else:
+            play = True
+    elif event.key == K_UP:
         velocityPlayer2 = -16
     elif event.key == K_DOWN:
         velocityPlayer2 = 16
