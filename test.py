@@ -85,8 +85,8 @@ class GameSpace:
 def ball_init(right):
     global positionBall, velocityBall # these are vectors stored as lists
     positionBall = [screenWidth / 2, screenHeight / 2]
-    horz = random.randrange(1, 5)
-    vert = random.randrange(1, 3)
+    horz = random.randrange(5, 10)
+    vert = random.randrange(3, 7)
     
     if right == False:
         horz = - horz
@@ -143,18 +143,18 @@ def draw(canvas):
     #     8)
 
     # update paddle's vertical position, keep paddle on the screen
-    if positionPlayer1[1] > (paddleHeight / 2) and positionPlayer1[1] < screenHeight - (paddleHeight / 2):
+    if positionPlayer1[1] > (paddleHeight / 2) and positionPlayer1[1] < screenHeight - (paddleHeight / 2):  # paddle is between top and bottom
         positionPlayer1[1] += velocityPlayer1
-    elif positionPlayer1[1] == (paddleHeight / 2) and velocityPlayer1 > 0:
+    elif positionPlayer1[1] <= (paddleHeight / 2) and velocityPlayer1 > 0:      # paddle is at top & moving down
         positionPlayer1[1] += velocityPlayer1
-    elif positionPlayer1[1] == screenHeight - (paddleHeight / 2) and velocityPlayer1 < 0:
+    elif positionPlayer1[1] >= screenHeight - (paddleHeight / 2) and velocityPlayer1 < 0:       # pddle at bottom & moving up
         positionPlayer1[1] += velocityPlayer1
     
     if positionPlayer2[1] > (paddleHeight / 2) and positionPlayer2[1] < screenHeight - (paddleHeight / 2):
         positionPlayer2[1] += velocityPlayer2
-    elif positionPlayer2[1] == (paddleHeight / 2) and velocityPlayer2 > 0:
+    elif positionPlayer2[1] <= (paddleHeight / 2) and velocityPlayer2 > 0:
         positionPlayer2[1] += velocityPlayer2
-    elif positionPlayer2[1] == screenHeight - (paddleHeight / 2) and velocityPlayer2 < 0:
+    elif positionPlayer2[1] >= screenHeight - (paddleHeight / 2) and velocityPlayer2 < 0:
         positionPlayer2[1] += velocityPlayer2
 
     #update ball
@@ -243,13 +243,13 @@ def keydown(event):
     global velocityPlayer1, velocityPlayer2
     
     if event.key == K_UP:
-        velocityPlayer2 = -8
+        velocityPlayer2 = -16
     elif event.key == K_DOWN:
-        velocityPlayer2 = 8
+        velocityPlayer2 = 16
     elif event.key == K_w:
-        velocityPlayer1 = -8
+        velocityPlayer1 = -16
     elif event.key == K_s:
-        velocityPlayer1 = 8
+        velocityPlayer1 = 16
 
 #keyup handler
 def keyup(event):
