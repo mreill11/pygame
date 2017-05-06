@@ -78,13 +78,27 @@ class GameSpace:
                     pygame.quit()
                     sys.exit()
 
-            if play:    # wait until user presses spacebar to start
+            if play:    # Wait until user presses spacebar to start
                 fps.tick(60)
 
                 window.fill(blackColor)
-                self.sprites.update()
+                # self.sprites.update()
                 self.sprites.draw(window)
                 draw(window)
+                pygame.display.flip()
+            else:       # Display pause screen
+                window.fill(blackColor)
+                # self.sprites.update()
+                self.sprites.draw(window)
+
+                font3Background = pygame.font.SysFont("Arial", 48, bold = True)
+                pausedBackground = font3Background.render("Press Space to Play", 1, blackColor)
+                window.blit(pausedBackground, (120, 225))  
+
+                font3Foreground = pygame.font.SysFont("Arial", 48 , bold = True)
+                pausedForeground = font3Foreground.render("Press Space to Play", 1, whiteColor)
+                window.blit(pausedForeground, (125, 220))  
+
                 pygame.display.flip()
 
 def ball_init(right):
@@ -100,7 +114,7 @@ def ball_init(right):
 
 # Draw the shapes (paddles, ball, etc.)
 def draw(canvas):
-    global positionPlayer1, positionPlayer2, positionBall, velocityBall, scorePlayer1, scorePlayer2
+    global positionPlayer1, positionPlayer2, positionBall, velocityBall, scorePlayer1, scorePlayer2, play
 
     # Move the paddles if they are within the bounds of the screen
     # Left paddle
@@ -208,13 +222,13 @@ def draw(canvas):
     homeForeground = font1Foreground.render("Home: " + str(scorePlayer1), 1, whiteColor)
     canvas.blit(homeForeground, (65, 20))
 
-    font2Foreground = pygame.font.SysFont("Arial", 20, bold = True)
-    awayForeground = font2Foreground.render("Away: " + str(scorePlayer2), 1, blackColor)
-    canvas.blit(awayForeground, (563, 22))  
-
     font2Background = pygame.font.SysFont("Arial", 20, bold = True)
-    awayBackground = font2Background.render("Away: " + str(scorePlayer2), 1, whiteColor)
-    canvas.blit(awayBackground, (565, 20))    
+    awayBackground = font2Background.render("Away: " + str(scorePlayer2), 1, blackColor)
+    canvas.blit(awayBackground, (563, 22))  
+
+    font2Foreground = pygame.font.SysFont("Arial", 20, bold = True)
+    awayForeground = font2Foreground.render("Away: " + str(scorePlayer2), 1, whiteColor)
+    canvas.blit(awayForeground, (565, 20))   
     
 # User pressed key down
 def keydown(event):
