@@ -6,7 +6,7 @@ import random
 import pygame, sys
 from pygame.locals import *
 
-#globals
+# Global variables
 screenWidth = 700
 screenHeight = 500
 paddleWidth = 24
@@ -23,11 +23,10 @@ scorePlayer2 = 0
 borderThickness = 4
 play = False
 
-#colors
+# Colors
 whiteColor = (255, 255, 255)
-redColor = (255, 0, 0)
-greenColor = (0, 255, 0)
 blackColor = (0, 0, 0)
+redColor = (255, 0, 0)
 navyColor = (17, 36, 76)
 goldColor = (194, 152, 50)
 
@@ -66,13 +65,7 @@ class GameSpace:
         draw(window)
         pygame.display.flip()
 
-        # window.fill(blackColor)
-        # self.sprites.update()
-        # self.sprites.draw(window)
-        # draw(window)
-        # pygame.display.flip()
-
-        #game loop
+        # Loop to play the game
         while True:
 
             for event in pygame.event.get():
@@ -85,8 +78,7 @@ class GameSpace:
                     pygame.quit()
                     sys.exit()
 
-            if play:
-                # pygame.display.update()
+            if play:    # wait until user presses spacebar to start
                 fps.tick(60)
 
                 window.fill(blackColor)
@@ -95,10 +87,8 @@ class GameSpace:
                 draw(window)
                 pygame.display.flip()
 
-# helper function that spawns a ball, returns a position vector and a velocity vector
-# if right is True, spawn to the right, else spawn to the left
 def ball_init(right):
-    global positionBall, velocityBall # these are vectors stored as lists
+    global positionBall, velocityBall
     positionBall = [screenWidth / 2, screenHeight / 2]
     horz = random.randrange(5, 10)
     vert = random.randrange(3, 7)
@@ -108,63 +98,20 @@ def ball_init(right):
 
     velocityBall = [horz, -vert]
 
-# # define event handlers
-# def init():
-#     global positionPlayer1, positionPlayer2, velocityPlayer1, velocityPlayer2, scorePlayer1, scorePlayer2  # these are floats
-#     # global score1, score2  # these are ints
-#     positionPlayer1 = [(paddleWidth / 2) - 1, screenHeight / 2]
-#     positionPlayer2 = [screenWidth + 1 - (paddleWidth / 2), screenHeight / 2]
-#     scorePlayer1 = 0
-#     scorePlayer2 = 0
-
-#     if random.randrange(0, 2) == 0:
-#         ball_init(True)
-#     else:
-#         ball_init(False)
-
-#     # self.field = self.Gameboard(self)
-#     # self.gameboard = pygame.sprite.RenderPlain(self.field)
-
-
-#draw function of canvas
+# Draw the shapes (paddles, ball, etc.)
 def draw(canvas):
     global positionPlayer1, positionPlayer2, positionBall, velocityBall, scorePlayer1, scorePlayer2
-           
-    # canvas.fill(blackColor)
 
-    # Draw the playing field
-    # pygame.draw.line(canvas,
-    #     whiteColor, 
-    #     [screenWidth / 2, 0],
-    #     [screenWidth / 2, screenHeight], 
-    #     8)
-
-    # pygame.draw.line(canvas, 
-    #     whiteColor, 
-    #     [paddleWidth + 1, 0],
-    #     [paddleWidth + 1, screenHeight], 
-    #     8)
-
-    # pygame.draw.line(canvas, 
-    #     whiteColor, 
-    #     [screenWidth - paddleWidth - 2, 0],
-    #     [screenWidth - paddleWidth - 2, screenHeight], 
-    #     8)
-
-    # pygame.draw.circle(canvas, 
-    #     whiteColor, 
-    #     [screenWidth // 2, screenHeight // 2], 
-    #     50, 
-    #     8)
-
-    # update paddle's vertical position, keep paddle on the screen
+    # Move the paddles if they are within the bounds of the screen
+    # Left paddle
     if positionPlayer1[1] > (paddleHeight / 2) + borderThickness and positionPlayer1[1] < screenHeight - (paddleHeight / 2) - borderThickness:      # paddle is between top and bottom
         positionPlayer1[1] += velocityPlayer1
     elif positionPlayer1[1] <= (paddleHeight / 2) + borderThickness and velocityPlayer1 > 0:      # paddle is at top & moving down
         positionPlayer1[1] += velocityPlayer1
     elif positionPlayer1[1] >= screenHeight - (paddleHeight / 2) - borderThickness and velocityPlayer1 < 0:       # paddle is at bottom & moving up
         positionPlayer1[1] += velocityPlayer1
-    
+
+    # Right paddle
     if positionPlayer2[1] > (paddleHeight / 2) + borderThickness and positionPlayer2[1] < screenHeight - (paddleHeight / 2) - borderThickness:      # paddle is between top and bottom
         positionPlayer2[1] += velocityPlayer2
     elif positionPlayer2[1] <= (paddleHeight / 2) + borderThickness and velocityPlayer2 > 0:      # paddle is at top & moving down
@@ -172,23 +119,25 @@ def draw(canvas):
     elif positionPlayer2[1] >= screenHeight - (paddleHeight / 2) - borderThickness and velocityPlayer2 < 0:       # paddle is at bottom & moving up
         positionPlayer2[1] += velocityPlayer2
 
-    #update ball
+    # Update the ball's position
     positionBall[0] += int(velocityBall[0])
     positionBall[1] += int(velocityBall[1])
 
-    #draw paddles and ball
+    # Draw ball
     pygame.draw.circle(canvas, 
         redColor, 
         positionBall, 
         ballRadius, 
         0)
 
+    # Draw ball border
     pygame.draw.circle(canvas, 
         whiteColor, 
         positionBall, 
         ballRadius + borderThickness, 
         borderThickness)
 
+    # Draw left paddle
     pygame.draw.polygon(canvas, 
         goldColor, 
         [[positionPlayer1[0] - (paddleWidth / 2), positionPlayer1[1] - (paddleHeight / 2)], 
@@ -197,14 +146,7 @@ def draw(canvas):
         [positionPlayer1[0] + (paddleWidth / 2), positionPlayer1[1] - (paddleHeight / 2)]], 
         0)
 
-    pygame.draw.polygon(canvas, 
-        goldColor, 
-        [[positionPlayer2[0] - (paddleWidth / 2), positionPlayer2[1] - (paddleHeight / 2)], 
-        [positionPlayer2[0] - (paddleWidth / 2), positionPlayer2[1] + (paddleHeight / 2)], 
-        [positionPlayer2[0] + (paddleWidth / 2), positionPlayer2[1] + (paddleHeight / 2)], 
-        [positionPlayer2[0] + (paddleWidth / 2), positionPlayer2[1] - (paddleHeight / 2)]], 
-        0)
-
+    # Draw left paddle border
     pygame.draw.polygon(canvas, 
         navyColor, 
         [[positionPlayer1[0] - (paddleWidth / 2) + borderThickness/2, positionPlayer1[1] - (paddleHeight / 2)], 
@@ -213,6 +155,16 @@ def draw(canvas):
         [positionPlayer1[0] + (paddleWidth / 2), positionPlayer1[1] - (paddleHeight / 2)]], 
         borderThickness)
 
+    # Draw right paddle
+    pygame.draw.polygon(canvas, 
+        goldColor, 
+        [[positionPlayer2[0] - (paddleWidth / 2), positionPlayer2[1] - (paddleHeight / 2)], 
+        [positionPlayer2[0] - (paddleWidth / 2), positionPlayer2[1] + (paddleHeight / 2)], 
+        [positionPlayer2[0] + (paddleWidth / 2), positionPlayer2[1] + (paddleHeight / 2)], 
+        [positionPlayer2[0] + (paddleWidth / 2), positionPlayer2[1] - (paddleHeight / 2)]], 
+        0)
+
+    # Draw right paddle border
     pygame.draw.polygon(canvas, 
         navyColor, 
         [[positionPlayer2[0] - (paddleWidth / 2), positionPlayer2[1] - (paddleHeight / 2)], 
@@ -220,40 +172,51 @@ def draw(canvas):
         [positionPlayer2[0] + (paddleWidth / 2) - borderThickness, positionPlayer2[1] + (paddleHeight / 2)], 
         [positionPlayer2[0] + (paddleWidth / 2) - borderThickness, positionPlayer2[1] - (paddleHeight / 2)]], 
         borderThickness)
-
-    #ball collision check on top and bottom walls
-    if int(positionBall[1]) <= ballRadius:
-        velocityBall[1] = - velocityBall[1]
-    if int(positionBall[1]) >= screenHeight + 1 - ballRadius:
-        velocityBall[1] = -velocityBall[1]
     
-    #ball collison check on gutters or paddles
+    # Check if ball hit left paddle; reverse x direction and increase ball speed
     if int(positionBall[0]) <= ballRadius + paddleWidth and int(positionBall[1]) in range(positionPlayer1[1] - (paddleHeight / 2) - (borderThickness * 4), positionPlayer1[1] + (paddleHeight / 2) + (borderThickness * 4), 1):
         velocityBall[0] = -velocityBall[0]
         velocityBall[0] *= 1.1
         velocityBall[1] *= 1.1
+    # Ball missed left paddle; increase player 2 score and reset
     elif int(positionBall[0]) <= ballRadius + paddleWidth:
         scorePlayer2 += 1
         ball_init(True)
-        
+    
+    # Check if ball hit right paddle; reverse x direction and increase ball speed
     if int(positionBall[0]) >= screenWidth + 1 - ballRadius - paddleWidth and int(positionBall[1]) in range(positionPlayer2[1] - (paddleHeight / 2) - (borderThickness * 4), positionPlayer2[1] + (paddleHeight / 2) + (borderThickness * 4), 1):
         velocityBall[0] = -velocityBall[0]
         velocityBall[0] *= 1.1
         velocityBall[1] *= 1.1
+    # Ball missed right paddle; increase player 1 score and reset
     elif int(positionBall[0]) >= screenWidth + 1 - ballRadius - paddleWidth:
         scorePlayer1 += 1
         ball_init(False)
 
-    #update scores
-    font1 = pygame.font.SysFont("Arial", 20)
-    label1 = font1.render("Score " + str(scorePlayer1), 1, whiteColor)
-    canvas.blit(label1, (50, 20))
+    # Check if ball hit top or bottom wall
+    if int(positionBall[1]) <= ballRadius:
+        velocityBall[1] = - velocityBall[1]
+    if int(positionBall[1]) >= screenHeight + 1 - ballRadius:
+        velocityBall[1] = -velocityBall[1]
 
-    font2 = pygame.font.SysFont("Arial", 20)
-    label2 = font2.render("Score " + str(scorePlayer2), 1, whiteColor)
-    canvas.blit(label2, (550, 20))    
+    # Display scores
+    font1Background = pygame.font.SysFont("Arial", 20, bold = True)
+    homeBackground = font1Background.render("Home: " + str(scorePlayer1), 1, blackColor)
+    canvas.blit(homeBackground, (63, 22))
+
+    font1Foreground = pygame.font.SysFont("Arial", 20, bold = True)
+    homeForeground = font1Foreground.render("Home: " + str(scorePlayer1), 1, whiteColor)
+    canvas.blit(homeForeground, (65, 20))
+
+    font2Foreground = pygame.font.SysFont("Arial", 20, bold = True)
+    awayForeground = font2Foreground.render("Away: " + str(scorePlayer2), 1, blackColor)
+    canvas.blit(awayForeground, (563, 22))  
+
+    font2Background = pygame.font.SysFont("Arial", 20, bold = True)
+    awayBackground = font2Background.render("Away: " + str(scorePlayer2), 1, whiteColor)
+    canvas.blit(awayBackground, (565, 20))    
     
-#keydown handler
+# User pressed key down
 def keydown(event):
     global velocityPlayer1, velocityPlayer2, play
     
@@ -271,7 +234,7 @@ def keydown(event):
     elif event.key == K_s:
         velocityPlayer1 = 16
 
-#keyup handler
+# User released key
 def keyup(event):
     global velocityPlayer1, velocityPlayer2
     
@@ -280,6 +243,7 @@ def keyup(event):
     elif event.key in (K_UP, K_DOWN):
         velocityPlayer2 = 0
 
+# Setup field
 class Gameboard(pygame.sprite.Sprite):
     def __init__(self, environment):
         pygame.sprite.Sprite.__init__(self)
@@ -304,20 +268,6 @@ def loadImage(name, colorkey = None):
         image = image.convert_alpha()
 
     return image, image.get_rect()
-
-def loadImageOnly(name):
-    try:
-        image = pygame.image.load(name)
-    except pygame.error:
-        print ("Failed to load images: ", fullname)
-        raise SystemExit(str(geterror()))
-
-    if image.get_alpha is None:
-        image = image.convert()
-    else:
-        image = image.convert_alpha()
-
-    return image
 
 #####################################################################  
 ############################ Play Game ##############################
