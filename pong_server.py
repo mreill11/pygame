@@ -11,7 +11,7 @@ import json
 PLAYER1_PORT = 40052
 PLAYER1_HOST = ""
 
-PLAYER2_PORT = 40001 # replace with Nicks port
+PLAYER2_PORT = 40047 # replace with Nicks port
 PLAYER2_HOST = ""
 
 dq = DeferredQueue()
@@ -31,15 +31,14 @@ class GameState:
         self.scorePlayer1 = 0
         self.scorePlayer2 = 0
 
-
-
     def getPlayer1_Connection(self, p1_conn):
         self.player1_Conn = p1_conn
 
-    def getPLayer2_Connection(self, p2_conn):
+    def getPlayer2_Connection(self, p2_conn):
         self.player2_Conn = p2_conn
 
     def decodeData(self, data):     # have to do space and quit
+        print "decoding data"
         dataList = data.split(":")
         if dataList[1] == '-1':
             return
@@ -78,6 +77,7 @@ class GameState:
 
         self.player1_Conn.sendData(response)
         self.player2_Conn.sendData(response)
+        print "decode data add callback"
         dq.get().addCallback(self.decode_data)
 
 
@@ -112,7 +112,7 @@ class Player1_Connection(Protocol):
     def startForwarding(self):
         # start forwarding the player 1 data
         print "sendData"
-        dq.get().addCallback(gs.decode_data)
+        dq.get().addCallback(gs.decodeData)
 
     def sendData(self, data):
         self.transport.write(data + '\r\n')        
@@ -143,7 +143,9 @@ class Player2_Connection(Protocol):
         print "ready to begin game"
         self.player1_conn.getPlayer2_Connection(self)
         gs.getPlayer2_Connection(self)
+        print "get player2 connection"
         self.startForwarding()
+        print "forwarding"
 
     def connectionLost(self, reason):
         print "Lost connection from player 2:", str(reason)
@@ -151,7 +153,8 @@ class Player2_Connection(Protocol):
     def startForwarding(self):
         # start forwarding the player 2 data
         #dq.get().addCallback(gs.decode_data)
-        dq.get().addCallback(gs.decode_data)
+        print "dq error?"
+        dq.get().addCallback(gs.decodeData)
 
     def sendData(self, data):
         self.transport.write(data + '\r\n')

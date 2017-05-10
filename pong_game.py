@@ -5,6 +5,7 @@
 import random
 import pygame, sys
 from pygame.locals import *
+import json
 
 # Global variables
 screenWidth = 700
@@ -21,7 +22,7 @@ velocityBall = [0, 0]
 scorePlayer1 = 0
 scorePlayer2 = 0
 borderThickness = 4
-play = False
+play = True
 
 # Colors
 whiteColor = (255, 255, 255)
@@ -31,105 +32,108 @@ navyColor = (17, 36, 76)
 goldColor = (194, 152, 50)
 
 class GameSpace():
-    def __init__(self, playerNum):
-        global positionPlayer1, velocityPlayer1, scorePlayer1, positionPlayer2, velocityPlayer2, scorePlayer2
-        self.isPlayer1 = False
-        if playerNum == 1:
-            self.isPlayer1 = True
-        pygame.init()
-        fps = pygame.time.Clock()
+        def __init__(self, playerNum):
+            global positionPlayer1, velocityPlayer1, scorePlayer1, positionPlayer2, velocityPlayer2, scorePlayer2
+            print "GameSpace init"
+            self.isPlayer1 = False
+            if playerNum == 1:
+                self.isPlayer1 = True
+            pygame.init()
+            fps = pygame.time.Clock()
 
-        #canvas declaration
-        window = pygame.display.set_mode((screenWidth, screenHeight), 0, 32)
-        pygame.display.set_caption("Let's Play Pong!") 
+            #canvas declaration
+            window = pygame.display.set_mode((screenWidth, screenHeight), 0, 32)
+            pygame.display.set_caption("Let's Play Pong!") 
 
-        self.background = pygame.Surface(window.get_size())
-        self.background = self.background.convert()
-        self.background.fill((blackColor))
+            self.background = pygame.Surface(window.get_size())
+            self.background = self.background.convert()
+            self.background.fill((blackColor))
 
-        self.field = Gameboard(self)
-        self.sprites = pygame.sprite.Group()
-        self.board = pygame.sprite.RenderPlain(self.field)
-        self.sprites.add(self.board)
+            self.field = Gameboard(self)
+            self.sprites = pygame.sprite.Group()
+            self.board = pygame.sprite.RenderPlain(self.field)
+            self.sprites.add(self.board)
 
-        positionPlayer1 = [(paddleWidth / 2) - 1, screenHeight / 2]
-        positionPlayer2 = [screenWidth + 1 - (paddleWidth / 2), screenHeight / 2]
-        scorePlayer1 = 0
-        scorePlayer2 = 0
-        ball_init(True)
+            positionPlayer1 = [(paddleWidth / 2) - 1, screenHeight / 2]
+            positionPlayer2 = [screenWidth + 1 - (paddleWidth / 2), screenHeight / 2]
+            scorePlayer1 = 0
+            scorePlayer2 = 0
+            ball_init(True)
 
-        window.blit(self.background, (0,0))
-        pygame.display.flip()
+            window.blit(self.background, (0,0))
+            pygame.display.flip()
 
-        fps.tick(60)
-        window.fill(blackColor)
-        self.sprites.update()
-        self.sprites.draw(window)
-        draw(window)
-        pygame.display.flip()
-
-
-    def game_tick():
-        # Loop to play the game
-        for event in pygame.event.get():
-
-            if event.type == KEYDOWN:
-                keydown(event)
-                if event.key == K_UP:
-                    self.sendData("UP")
-                elif event.key == KDOWN:
-                    self.sendData("DOWN")
-            elif event.type == KEYUP:
-                keyup(event)
-                self.sendData("KUP")
-            elif event.type == QUIT:
-                reactor.stop()
-                pygame.quit()
-                sys.exit()
-
-        if play:    # Wait until user presses spacebar to start
             fps.tick(60)
-
             window.fill(blackColor)
-            # self.sprites.update()
+            self.sprites.update()
             self.sprites.draw(window)
             draw(window)
             pygame.display.flip()
-        else:       # Display pause screen
-            window.fill(blackColor)
-            # self.sprites.update()
-            self.sprites.draw(window)
 
-            font3Background = pygame.font.SysFont("Arial", 48, bold = True)
-            pausedBackground = font3Background.render("Press Space to Play", 1, blackColor)
-            window.blit(pausedBackground, (120, 225))  
 
-            font3Foreground = pygame.font.SysFont("Arial", 48 , bold = True)
-            pausedForeground = font3Foreground.render("Press Space to Play", 1, whiteColor)
-            window.blit(pausedForeground, (125, 220))  
+        def game_tick(self):
+            # Loop to play the game
+            print "loop"
+            for event in pygame.event.get():
 
-            pygame.display.flip()
+                if event.type == KEYDOWN:
+                    keydown(event)
+                    print "keydown"
+                    if event.key == K_UP:
+                        self.sendData("UP")
+                    elif event.key == KDOWN:
+                        self.sendData("DOWN")
+                elif event.type == KEYUP:
+                    keyup(event)
+                    self.sendData("KUP")
+                elif event.type == QUIT:
+                    reactor.stop()
+                    pygame.quit()
+                    sys.exit()
 
-    def sendData(self, eventKey):
-        if self.isPlayer1:
-            self.outgoingConn.transport.write("1:" + eventKey)
-        else:
-            self.outgoingConn.transport.write("2:" + eventKey)
+            if play:    # Wait until user presses spacebar to start
+                #fps.tick(60)
 
-    def transferConnectionObject(self, obj):
-        self.outgoingConn = obj
+                window.fill(blackColor)
+                # self.sprites.update()
+                self.sprites.draw(window)
+                draw(window)
+                pygame.display.flip()
+            else:       # Display pause screen
+                window.fill(blackColor)
+                # self.sprites.update()
+                self.sprites.draw(window)
 
-    def handleData(self, data):
-        positionPlayer1 = int(data['posPlayer1'])
-        positionPlayer2 = int(data['posPlayer2'])
-        #positionBall = int(data['posBall'])
-        positionBall = json.loads(data['posBall'])
-        velocityPlayer1 = int(data['velPlayer1'])
-        velocityPlayer1 = int(data['velPlayer2'])
-        #velocityBall = int(data['velBall'])
-        velocityBall = json.loads(data['velBall'])
-        scorePlayer1 = int(data['scorePlayer1'])
-        scorePlayer2 = int(data['scorePlayer2'])
+                font3Background = pygame.font.SysFont("Arial", 48, bold = True)
+                pausedBackground = font3Background.render("Press Space to Play", 1, blackColor)
+                window.blit(pausedBackground, (120, 225))  
+
+                font3Foreground = pygame.font.SysFont("Arial", 48 , bold = True)
+                pausedForeground = font3Foreground.render("Press Space to Play", 1, whiteColor)
+                window.blit(pausedForeground, (125, 220))  
+
+                pygame.display.flip()
+
+        def sendData(self, eventKey):
+            if self.isPlayer1:
+                self.outgoingConn.transport.write("1:" + eventKey)
+            else:
+                self.outgoingConn.transport.write("2:" + eventKey)
+
+        def transferConnectionObject(self, obj):
+            self.outgoingConn = obj
+
+        def handleData(self, data):
+            positionPlayer1 = int(data['posPlayer1'])
+            positionPlayer2 = int(data['posPlayer2'])
+            #positionBall = int(data['posBall'])
+            positionBall = json.loads(data['posBall'])
+            velocityPlayer1 = int(data['velPlayer1'])
+            velocityPlayer1 = int(data['velPlayer2'])
+            #velocityBall = int(data['velBall'])
+            velocityBall = json.loads(data['velBall'])
+            scorePlayer1 = int(data['scorePlayer1'])
+            scorePlayer2 = int(data['scorePlayer2'])
 
 def ball_init(right):
     global positionBall, velocityBall
