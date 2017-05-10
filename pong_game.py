@@ -122,10 +122,12 @@ class GameSpace():
     def handleData(self, data):
         positionPlayer1 = int(data['posPlayer1'])
         positionPlayer2 = int(data['posPlayer2'])
-        positionBall = int(data['posBall'])
+        #positionBall = int(data['posBall'])
+        positionBall = json.loads(data['posBall'])
         velocityPlayer1 = int(data['velPlayer1'])
         velocityPlayer1 = int(data['velPlayer2'])
-        velocityBall = int(data['velBall'])
+        #velocityBall = int(data['velBall'])
+        velocityBall = json.loads(data['velBall'])
         scorePlayer1 = int(data['scorePlayer1'])
         scorePlayer2 = int(data['scorePlayer2'])
 

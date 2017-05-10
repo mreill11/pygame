@@ -39,7 +39,7 @@ class GameState:
     def getPLayer2_Connection(self, p2_conn):
         self.player2_Conn = p2_conn
 
-    def decodeData(self, data):
+    def decodeData(self, data):     # have to do space and quit
         dataList = data.split(":")
         if dataList[1] == '-1':
             return
