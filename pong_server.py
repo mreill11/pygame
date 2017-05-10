@@ -21,6 +21,17 @@ FPS = 30.0
 class GameState:
     def __init__(self):
         # variables to track game state
+        #pass
+        self.posPlayer1 = 0
+        self.posPlayer2 = 0
+        self.posBall = [0, 0]
+        self.velPlayer1 = 0
+        self.velPlayer2 = 0
+        self.velBall = [0, 0]
+        self.scorePlayer1 = 0
+        self.scorePlayer2 = 0
+
+
 
     def getPlayer1_Connection(self, p1_conn):
         self.player1_Conn = p1_conn
@@ -28,9 +39,50 @@ class GameState:
     def getPLayer2_Connection(self, p2_conn):
         self.player2_Conn = p2_conn
 
+    def decodeData(self, data):
+        dataList = data.split(":")
+        if dataList[1] == '-1':
+            return
+        if dataList[0] == '1':  # player 1
+            if dataList[1] == 'UP':
+                # move paddle up
+                self.velPlayer1 -= 16
+            elif dataList[1] == 'DOWN':
+                # move paddle down
+                self.velPlayer2 += 16
+            else:
+                velPlayer2 = 0
+                #pass
+        elif dataList[0] == '2':
+            if dataList[1] == 'UP':
+                # move paddle up
+                self.velPlayer2 -= 16
+            elif dataList[1] == 'DOWN':
+                # move paddle down
+                self.velPlayer2 += 16
+            else:
+                self.velPlayer2 = 0
+                #pass
+
+        else:
+            print "Error: unexpected data."
+
+        response = json.dumps({'posPlayer1':self.posPlayer1,
+                                'posPlayer2':self.posPlayer2,
+                                'posBall':posBall,
+                                'velPlayer1':velPlayer1,
+                                'velPlayer2':velPlayer2,
+                                'velBall':velBall,
+                                'scorePlayer1':scorePlayer1,
+                                'scorePlayer2':scorePlayer2})
+
+        self.player1_Conn.sendData(response)
+        self.player2_Conn.sendData(response)
+        dq.get().addCallback(self.decode_data)
 
 
 
+gs = GameState()
 
 
 class Player1_ConnFactory(Factory):
@@ -103,3 +155,7 @@ class Player2_Connection(Protocol):
 
     def sendData(self, data):
         self.transport.write(data + '\r\n')
+
+if __name__ == "__main__":
+    reactor.listenTCP(PLAYER1_PORT, Player1_ConnFactory())
+    reactor.run()

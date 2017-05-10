@@ -31,8 +31,11 @@ navyColor = (17, 36, 76)
 goldColor = (194, 152, 50)
 
 class GameSpace:
-    def main(self):
+    def main(self, playerNum):
         global positionPlayer1, velocityPlayer1, scorePlayer1, positionPlayer2, velocityPlayer2, scorePlayer2
+        self.isPlayer1 = False
+        if playerNum == 1:
+            self.isPlayer1 = True
         pygame.init()
         fps = pygame.time.Clock()
 
@@ -72,9 +75,12 @@ class GameSpace:
 
                 if event.type == KEYDOWN:
                     keydown(event)
+                    self.sendData("DOWN")
                 elif event.type == KEYUP:
                     keyup(event)
+                    self.sendData("UP")
                 elif event.type == QUIT:
+                    reactor.stop()
                     pygame.quit()
                     sys.exit()
 
@@ -100,6 +106,25 @@ class GameSpace:
                 window.blit(pausedForeground, (125, 220))  
 
                 pygame.display.flip()
+
+    def sendData(self, eventKey):
+        if self.isPlayer1:
+            self.outgoingConn.transport.write("1:" + eventKey)
+        else:
+            self.outgoingConn.transport.write("2:" + eventKey)
+
+    def transferConnectionObject(self, obj):
+        self.outgoingConn = obj
+
+    def handleData(self, data):
+        positionPlayer1 = int(data['posPlayer1'])
+        positionPlayer2 = int(data['posPlayer2'])
+        positionBall = int(data['posBall'])
+        velocityPlayer1 = int(data['velPlayer1'])
+        velocityPlayer1 = int(data['velPlayer2'])
+        velocityBall = int(data['velBall'])
+        scorePlayer1 = int(data['scorePlayer1'])
+        scorePlayer2 = int(data['scorePlayer2'])
 
 def ball_init(right):
     global positionBall, velocityBall

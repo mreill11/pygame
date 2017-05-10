@@ -10,10 +10,10 @@ from twisted.protocols.basic import LineReceiver
 from twisted.internet.protocol import ClientFactory
 from twisted.internet.protocol import Protocol
 from twisted.internet import reactor
-from pong_game import Pong
+from pong_game import GameSpace
 from twisted.internet.task import LoopingCall
 
-GAME_SERVER = 'student02.cse.nd.edu'
+GAME_SERVER = 'ash.campus.nd.edu'
 PORT1 = 40052
 PORT2 = 40001   # TODO: replace with Nicks port
 
@@ -55,13 +55,13 @@ if __name__ == "__main__":
         sys.exit(0)
     # Set up a twisted LoopingCall for server ticks, bind it to the game tick
     if sys.argv[1] == 'host':
-        game = Pong(1)
+        game = GameSpace(1)
         DESIRED_FPS = 30.0
         tick = LoopingCall(game.game_tick)
         tick.start(1.0 / DESIRED_FPS)
         reactor.connectTCP(GAME_SERVER, PORT1, PlayerConnectionFactory(game))
     elif sys.argv[1] == 'join':
-        game = PONG(2)
+        game = GameSpace(2)
         DESIRED_FPS = 30.0
         tick = LoopingCall(game.game_tick)
         tick.start(1.0 / DESIRED_FPS)
