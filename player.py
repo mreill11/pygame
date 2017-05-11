@@ -9,13 +9,14 @@ from pygame.locals import *
 from twisted.protocols.basic import LineReceiver
 from twisted.internet.protocol import ClientFactory
 from twisted.internet.protocol import Protocol
-from twisted.internet import reactor
+from twisted.internet import reactor, task
 from pong_game import GameSpace
 from twisted.internet.task import LoopingCall
 
 GAME_SERVER = 'ash.campus.nd.edu'
 PORT1 = 40052
 PORT2 = 40047   # TODO: replace with Nicks port
+
 
 #server receives on
 
@@ -46,10 +47,16 @@ class PlayerConnection(LineReceiver):
         obj = json.loads(data)
         self.game.handleData(obj)
 
+def periodic_task_crashed(reason):
+    log.err(reason, "periodic_task_broken")
+    print str(reason)
+    print "task_crashed"
+
 
 if __name__ == "__main__":
     # host is the first to connect, and hosts the game
     # join attaches to the game
+    
     if len(sys.argv) == 1 or len(sys.argv) > 2:     # CLA will be either host or joing
         print "Incorrect number of arguments."
         sys.exit(0)
@@ -58,18 +65,22 @@ if __name__ == "__main__":
         game = GameSpace(1)
         print "GS 1"
         DESIRED_FPS = 30.0
-        tick = LoopingCall(game.game_tick)
+        tick = LoopingCall(game.game_tick, now=False)
         print "ticking"
-        tick.start(1.0 / DESIRED_FPS)
+        
         reactor.connectTCP(GAME_SERVER, PORT1, PlayerConnectionFactory(game))
+        d = tick.start(1.0 / DESIRED_FPS)
+        d.addErrback(periodic_task_crashed)
 
     elif sys.argv[1] == 'join':
         game = GameSpace(2)
         print "GS 2"
         DESIRED_FPS = 30.0
-        tick = LoopingCall(game.game_tick)
-        tick.start(1.0 / DESIRED_FPS)
+        tick = LoopingCall(game.game_tick, now=False)
+        
         reactor.connectTCP(GAME_SERVER, PORT2, PlayerConnectionFactory(game))
+        d = tick.start(1.0 / DESIRED_FPS)
+        d.addErrback(periodic_task_crashed)
 
     else:
         print "Either host or join must be the argument"

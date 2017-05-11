@@ -5,10 +5,6 @@
 import random
 import pygame, sys
 from pygame.locals import *
-import json
-from connections import *
-from twisted.python import log
-from twisted.internet.task import LoopingCall
 
 # Global variables
 screenWidth = 700
@@ -25,7 +21,7 @@ velocityBall = [0, 0]
 scorePlayer1 = 0
 scorePlayer2 = 0
 borderThickness = 4
-play = True
+play = False
 
 # Colors
 whiteColor = (255, 255, 255)
@@ -34,29 +30,15 @@ redColor = (255, 0, 0)
 navyColor = (17, 36, 76)
 goldColor = (194, 152, 50)
 
-class Player2():
-    def __init__(self, GameSpace, playerNum):
-        self.gamespace = GameSpace
-
-class Player1():
-    def __init__(self, GameSpace, playerNum):
-        self.gamespace = GameSpace
-
-class GameSpace():
-        def main(self, playerNum):
+class GameSpace(Protocol):
+    def __init__(self, addr):
             global positionPlayer1, velocityPlayer1, scorePlayer1, positionPlayer2, velocityPlayer2, scorePlayer2
             print "GameSpace init"
+            self.addr = addr
+            # self.isPlayer1 = False
+            # if playerNum == 1:
+            #     self.isPlayer1 = True
             pygame.init()
-            port = 40052
-            self.isPlayer1 = False
-            if playerNum == 1:
-                self.isPlayer1 = True
-                self.factory = PlayerFactory(playerNum)
-                reactor.listenTCP(pert, self.factory)
-            else:
-                self.factory = PlayerCFactory(playerNum)
-                reactor.connectTCP("ash.campus.nd.edu", port, self.factory)
-            
             self.fps = pygame.time.Clock()
 
             #canvas declaration
@@ -89,82 +71,80 @@ class GameSpace():
             pygame.display.flip()
 
 
-            def game_tick():
-                # Loop to play the game
-                global play
-                print "loop"
-                
-                self.fps.tick(60)
-                for event in pygame.event.get():
-                    print "event loop"
+        def game_tick(self):
+            # Loop to play the game
+            print "loop"
+            self.fps.tick(60)
+            # for event in pygame.event.get():
+            #     print "event loop"
 
-                    if event.type == KEYDOWN:
-                        keydown(event)
-                        print "keydown"
-                        if event.key == K_UP:
-                           # self.sendData("UP")
-                           self.factory.playerConn.transport.write("up")
-                           pass
-                        elif event.key == KDOWN:
-                            #self.sendData("DOWN")
-                            self.factory.playerConn.transport.write("down")
-                            pass
-                    elif event.type == KEYUP:
-                        keyup(event)
-                        #self.sendData("KUP")
-                        self.factory.playerConn.transport.write("KUP")
-                    elif event.type == QUIT:
-                        reactor.stop()
-                        pygame.quit()
-                        sys.exit()
+            #     if event.type == KEYDOWN:
+            #         keydown(event)
+            #         print "keydown"
+            #         if event.key == K_UP:
+            #            # self.sendData("UP")
+            #            pass
+            #         elif event.key == KDOWN:
+            #             #self.sendData("DOWN")
+            #             pass
+            #     elif event.type == KEYUP:
+            #         keyup(event)
+            #         #self.sendData("KUP")
+            #     elif event.type == QUIT:
+            #         reactor.stop()
+            #         pygame.quit()
+            #         sys.exit()
 
-                if play:    # Wait until user presses spacebar to start
-                    #fps.tick(60)
+            if play:    # Wait until user presses spacebar to start
+                #fps.tick(60)
 
-                    window.fill(blackColor)
-                    # self.sprites.update()
-                    self.sprites.draw(window)
-                    draw(window)
-                    pygame.display.flip()
-                else:       # Display pause screen
-                    window.fill(blackColor)
-                    # self.sprites.update()
-                    self.sprites.draw(window)
+                window.fill(blackColor)
+                # self.sprites.update()
+                self.sprites.draw(window)
+                draw(window)
+                pygame.display.flip()
+            else:       # Display pause screen
+                window.fill(blackColor)
+                # self.sprites.update()
+                self.sprites.draw(window)
 
-                    font3Background = pygame.font.SysFont("Arial", 48, bold = True)
-                    pausedBackground = font3Background.render("Press Space to Play", 1, blackColor)
-                    window.blit(pausedBackground, (120, 225))  
+                font3Background = pygame.font.SysFont("Arial", 48, bold = True)
+                pausedBackground = font3Background.render("Press Space to Play", 1, blackColor)
+                window.blit(pausedBackground, (120, 225))  
 
-                    font3Foreground = pygame.font.SysFont("Arial", 48 , bold = True)
-                    pausedForeground = font3Foreground.render("Press Space to Play", 1, whiteColor)
-                    window.blit(pausedForeground, (125, 220))  
+                font3Foreground = pygame.font.SysFont("Arial", 48 , bold = True)
+                pausedForeground = font3Foreground.render("Press Space to Play", 1, whiteColor)
+                window.blit(pausedForeground, (125, 220))  
 
-                    pygame.display.flip()
+                pygame.display.flip()
 
-            tick = LoopingCall(game_tick)
-            tick.start(1.0 / 60)
-            reactor.run()
+    
 
-        def sendData(self, eventKey):
-            if self.isPlayer1:
-                self.outgoingConn.transport.write("1:" + eventKey)
-            else:
-                self.outgoingConn.transport.write("2:" + eventKey)
+    def transferConnectionObject(self, obj):
+        self.outgoingConn = obj
 
-        def transferConnectionObject(self, obj):
-            self.outgoingConn = obj
+    def handleData(self, data):
+        
 
-        def handleData(self, data):
-            positionPlayer1 = int(data['posPlayer1'])
-            positionPlayer2 = int(data['posPlayer2'])
-            #positionBall = int(data['posBall'])
-            positionBall = json.loads(data['posBall'])
-            velocityPlayer1 = int(data['velPlayer1'])
-            velocityPlayer1 = int(data['velPlayer2'])
-            #velocityBall = int(data['velBall'])
-            velocityBall = json.loads(data['velBall'])
-            scorePlayer1 = int(data['scorePlayer1'])
-            scorePlayer2 = int(data['scorePlayer2'])
+    def connectionMade(self):
+        self.sendData()
+        self.looping = LoopingCall(self.main)
+        self.looping.start(1/60)
+
+    def dataReceived(self, data):
+        data = json.loads(data)
+        #update opponent paddle
+        pass
+
+    def sendData(self, eventKey):
+        # load player 1 data
+        data = json.dumps(data)
+        self.transport.write(data)
+
+    def connectionLost(self, args):
+        # exit game
+        pass
+
 
 def ball_init(right):
     global positionBall, velocityBall
@@ -353,8 +333,8 @@ def loadImage(name, colorkey = None):
 #####################################################################   
 
 if __name__ == "__main__":
-
-    playerNum = int(sys.argv[1])
-
-    gs = GameSpace()
-    gs.main(playerNum)
+    # gs = GameSpace()
+    # gs.main()
+    connFact = HostConnectionFactory()
+    reactor.listenTCP(40052, connFact)
+    reactor.run()

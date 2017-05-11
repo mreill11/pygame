@@ -25,7 +25,7 @@ velocityBall = [0, 0]
 scorePlayer1 = 0
 scorePlayer2 = 0
 borderThickness = 4
-play = True
+play = False
 
 # Colors
 whiteColor = (255, 255, 255)
@@ -52,7 +52,7 @@ class GameSpace():
             if playerNum == 1:
                 self.isPlayer1 = True
                 self.factory = PlayerFactory(playerNum)
-                reactor.listenTCP(pert, self.factory)
+                reactor.listenTCP(port, self.factory)
             else:
                 self.factory = PlayerCFactory(playerNum)
                 reactor.connectTCP("ash.campus.nd.edu", port, self.factory)
@@ -92,23 +92,36 @@ class GameSpace():
             def game_tick():
                 # Loop to play the game
                 global play
-                print "loop"
+                #print "loop"
                 
                 self.fps.tick(60)
                 for event in pygame.event.get():
-                    print "event loop"
+                    #print "event loop"
 
                     if event.type == KEYDOWN:
                         keydown(event)
                         print "keydown"
                         if event.key == K_UP:
                            # self.sendData("UP")
-                           self.factory.playerConn.transport.write("up")
-                           pass
-                        elif event.key == KDOWN:
+                            if self.isPlayer1:
+                                velPlayer1 = -16
+                            else:
+                                velPlayer2 = -16
+                            self.factory.playerConn.transport.write("up")
+                            pass
+                        elif event.key == K_DOWN:
+                            if self.isPlayer1:
+                                velPlayer1 = 16
+                            else:
+                                velPlayer2 = 16
                             #self.sendData("DOWN")
                             self.factory.playerConn.transport.write("down")
                             pass
+                        elif event.key == K_SPACE:
+                            if play:
+                                play = False
+                            else:
+                                play = True
                     elif event.type == KEYUP:
                         keyup(event)
                         #self.sendData("KUP")
