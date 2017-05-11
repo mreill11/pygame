@@ -25,7 +25,7 @@ velocityBall = [0, 0]
 scorePlayer1 = 0
 scorePlayer2 = 0
 borderThickness = 4
-play = False
+play = True
 
 # Colors
 whiteColor = (255, 255, 255)
@@ -134,12 +134,16 @@ class GameSpace():
                 if play:    # Wait until user presses spacebar to start
                     #fps.tick(60)
 
+                    # print "Entered Play If"
+
                     window.fill(blackColor)
                     # self.sprites.update()
                     self.sprites.draw(window)
                     draw(window)
                     pygame.display.flip()
                 else:       # Display pause screen
+
+                    # print "Entered Play Else"
                     window.fill(blackColor)
                     # self.sprites.update()
                     self.sprites.draw(window)
@@ -317,6 +321,7 @@ def keydown(event):
             play = False
         else:
             play = True
+        # print "Play = ", play
     elif event.key == K_UP:
         velocityPlayer2 = -16
     elif event.key == K_DOWN:

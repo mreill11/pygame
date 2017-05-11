@@ -78,7 +78,7 @@ class GameState:
         self.player1_Conn.sendData(response)
         self.player2_Conn.sendData(response)
         print "decode data add callback"
-        dq.get().addCallback(self.decode_data)
+        dq.get().addCallback(self.decodeData)
 
 
 
@@ -158,6 +158,10 @@ class Player2_Connection(Protocol):
 
     def sendData(self, data):
         self.transport.write(data + '\r\n')
+
+def error(failure):
+    import sys
+    sys.stderr.write(str(failure))
 
 if __name__ == "__main__":
     reactor.listenTCP(PLAYER1_PORT, Player1_ConnFactory())
